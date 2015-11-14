@@ -1,5 +1,6 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+author: "jalagon"
 output: 
   html_document:
     keep_md: true
@@ -8,9 +9,39 @@ output:
 
 ## Loading and preprocessing the data
 
+First, download the data from internet.
+
+```{r Download and extract data}
+URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+download.file(url = URL, destfile = "activity.zip")
+unzip("activity.zip")
+```
+
+Now read data in R, change date variable to date format and check everything looks ok.
+
+```{r Read data}
+# Read data. I assume you have downloaded zip data and extracted *activity.csv*  to working directory.
+activity <- read.csv("activity.csv")
+
+# Change date variable to date format
+activity$date<-as.Date.factor(activity$date)
+
+# Explore data frame
+str(activity)
+head(activity)
+tail(activity)
+
+```
+
 
 
 ## What is mean total number of steps taken per day?
+```{r Mean total steps per day}
+library(dplyr)
+StepsPerDay <- summarise(group_by(activity, date), sum(steps))
+MeanStepsPerDay <- mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)
+print(MeanStepsPerDay)
+```
 
 
 

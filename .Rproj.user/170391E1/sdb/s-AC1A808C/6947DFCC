@@ -1,0 +1,19 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Reproducible Research: Peer Assessment 1\"\nauthor: \"jalagon\"\noutput: \n  html_document:\n    keep_md: true\n---\n\n\n## Loading and preprocessing the data\n\nFirst, download the data from internet.\n\n```{r Download and extract data, cache=TRUE}\nURL <- \"https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip\"\ndownload.file(url = URL, destfile = \"activity.zip\")\nunzip(\"activity.zip\")\n```\n\nNow read data in R, change date variable to date format and check everything looks ok.\n\n```{r Read data}\n# Read data. I assume you have downloaded zip data and extracted *activity.csv*  to working directory.\nactivity <- read.csv(\"activity.csv\")\n# Change date variable to date format\nactivity$date<-as.Date.factor(activity$date)\n# Explore data frame\nstr(activity)\nhead(activity)\ntail(activity)\n\n```\n\n\n## What is mean total number of steps taken per day?\n```{r Mean total steps per day}\nlibrary(dplyr)\n#Calculate total number of steps per day\nStepsPerDay <- summarise(group_by(activity, date), sum(steps))\n#Calculate mean across days, removing NA\nMeanStepsPerDay <- mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)\nprint(MeanStepsPerDay)\n```\n\n\n\n## What is the average daily activity pattern?\n\n\n\n## Imputing missing values\n\n\n\n## Are there differences in activity patterns between weekdays and weekends?\n",
+    "created" : 1447532525293.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3816578547",
+    "id" : "6947DFCC",
+    "lastKnownWriteTime" : 1447544465,
+    "path" : "~/GitHub/RepData_PeerAssessment1/PA1_template.Rmd",
+    "project_path" : "PA1_template.Rmd",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
