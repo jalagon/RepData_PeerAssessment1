@@ -2,12 +2,14 @@
 title: "Reproducible Research: Peer Assessment 1"
 author: "jalagon"
 output: 
-  html_document:
-    keep_md: true
+html_document:
+keep_md: true
 ---
 
 
 ## Loading and preprocessing the data
+
+1. Load the data (i.e. `read.csv()`)
 
 First, download the data from internet.
 
@@ -17,18 +19,30 @@ download.file(url = URL, destfile = "activity.zip")
 unzip("activity.zip")
 ```
 
-Now read data in R, change date variable to date format and check everything looks ok.
+Then, read data in R.
 
 ```{r Read data}
 # Read data. I assume you have downloaded zip data and extracted *activity.csv*  to working directory.
 activity <- read.csv("activity.csv")
+```
+
+2. Process/transform the data (if necessary) into a format suitable for your analysis.  
+
+Change date variable to date format and check everything looks ok
+```{r Process data}
 # Change date variable to date format
 activity$date<-as.Date.factor(activity$date)
+
+#Create time and dateTime variables from date and interval variables.
+hour <- as.integer(activity$interval/100)
+minute <- as.integer(round((activity$interval/100 - hour) * 100))
+time <- strptime(paste(hour,":",minute, sep = ""), format = "%H:%M")
+dateTime <- strptime(paste(activity$date," ",hour,":",minute, sep = ""), format = "%Y-%m-%d %H:%M")
+
 # Explore data frame
 str(activity)
 head(activity)
 tail(activity)
-
 ```
 
 
@@ -38,7 +52,7 @@ tail(activity)
 
 ```{r Total steps per day}
 library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
-#Calculate total number of steps per day
+# Calculate total number of steps per day
 StepsPerDay <- summarise(group_by(activity, date), sum(steps))
 StepsPerDay
 
@@ -54,16 +68,34 @@ hist(StepsPerDay$`sum(steps)`,
 
 3. Calculate and report the mean and median of the total number of steps taken per day
 ```{r Mean and median steps per day}
-#Calculate mean and median across days, removing NA
+# Calculate mean and median across days, removing NA
 mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)
 median(StepsPerDay$`sum(steps)`, na.rm = TRUE)
-
 ```
 
 
 ## What is the average daily activity pattern?
 
+1. Make a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r Time Series}
+# Calculate Average Steps per Interval
+AverageStepsPerInterval <- summarise(group_by(activity, interval), mean(steps, na.rm = TRUE))
+plot(unique(time), AverageStepsPerInterval$`mean(steps, na.rm = TRUE)`, 
+     type = "l",
+     main = "Time series average steps by 5-minute interval",
+     xlab = "5-minute interval",
+     ylab = "Average Steps")
+```
 
+2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r Max steps interval , echo=FALSE}
+# Find the max and extract the interval
+x <- AverageStepsPerInterval[AverageStepsPerInterval[,2] == max(AverageStepsPerInterval[,2]),]
+maxInt <- paste(as.integer(x[1]/100), ":", as.integer(round((x[1]/100 - as.integer(x[1]/100)) * 100)), sep = "")
+maxSteps <- round(x[2]) 
+```
+
+The interval **`r maxInt`** has the max average number of steps, which is **`r maxSteps`**.
 
 ## Imputing missing values
 
