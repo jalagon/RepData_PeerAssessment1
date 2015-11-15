@@ -3,7 +3,7 @@ title: "Reproducible Research: Peer Assessment 1"
 author: "jalagon"
 output: 
 html_document:
-keep_md: true
+keep_md: yes
 ---
 
 
@@ -51,7 +51,8 @@ tail(activity)
 1. Calculate the total number of steps taken per day
 
 ```{r Total steps per day}
-library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+library(plyr)
+library(dplyr)
 # Calculate total number of steps per day
 StepsPerDay <- summarise(group_by(activity, date), sum(steps))
 StepsPerDay
@@ -68,11 +69,12 @@ hist(StepsPerDay$`sum(steps)`,
 
 3. Calculate and report the mean and median of the total number of steps taken per day
 ```{r Mean and median steps per day}
-# Calculate mean and median across days, removing NA
-mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)
-median(StepsPerDay$`sum(steps)`, na.rm = TRUE)
+# Calculate mean and median across days, ignoring NA
+meanSteps <- mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)
+medianSteps <- median(StepsPerDay$`sum(steps)`, na.rm = TRUE)
 ```
 
+The mean and median steps taken per day are **`r meanSteps`** and **`r medianSteps`**, respectively.
 
 ## What is the average daily activity pattern?
 
@@ -88,17 +90,69 @@ plot(unique(time), AverageStepsPerInterval$`mean(steps, na.rm = TRUE)`,
 ```
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r Max steps interval , echo=FALSE}
+```{r Max steps interval}
 # Find the max and extract the interval
-x <- AverageStepsPerInterval[AverageStepsPerInterval[,2] == max(AverageStepsPerInterval[,2]),]
-maxInt <- paste(as.integer(x[1]/100), ":", as.integer(round((x[1]/100 - as.integer(x[1]/100)) * 100)), sep = "")
-maxSteps <- round(x[2]) 
+x <- AverageStepsPerInterval[AverageStepsPerInterval[, 2] == max(AverageStepsPerInterval[, 2]), ]
+maxInt <- paste(as.integer(x[1] / 100), ":", 
+                as.integer(round((x[1] / 100 - as.integer(x[1] / 100)) * 100)), 
+                sep = "")
+maxSteps <- round(x[2])
 ```
 
 The interval **`r maxInt`** has the max average number of steps, which is **`r maxSteps`**.
 
 ## Imputing missing values
 
+1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
+```{r count missing}
+#Calculate number of rows with NAs
+numbMissing <- dim(activity)[1] - sum(complete.cases(activity))
+percMissing <- round(numbMissing / dim(activity)[1] * 100)
+```
+
+There are **`r numbMissing`** cases with missing values, that is **`r percMissing`%**.
+
+2. Devise a strategy for filling in all of the missing values in the dataset. 
+
+My strategy will be **to replace missing values by the mean for that 5-minute interval**.
+
+3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+```{r replace missing values}
+# Used approach from http://www.mail-archive.com/r-help@r-project.org/msg58289.html
+impute.mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
+activityComplete <- ddply(activity, ~ interval, transform, steps = impute.mean(steps))
+```
+
+4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```{r calculate}
+# Calculate total number of steps per day
+StepsPerDayComplete <- summarise(group_by(activityComplete, date), sum(steps))
+# Generate Histogram
+hist(StepsPerDayComplete$`sum(steps)`,
+     main = "Total number of steps per day",
+     xlab = "Steps per day (imputed NAs)")
+# Calculate mean and median across days
+meanStepsComplete <- round(mean(StepsPerDayComplete$`sum(steps)`), digits = 2)
+medianStepsComplete <- round(median(StepsPerDayComplete$`sum(steps)`), digits = 2)
+```
+
+The mean and median steps taken per day are both **`r meanStepsComplete`**. 
+
+Therefore, the impact of imputing missing data was **negligible**.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+
+1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+```{r weekdays}
+as.factor(weekdays(activityComplete$date, abbreviate = TRUE))
+
+```
+
+2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+
