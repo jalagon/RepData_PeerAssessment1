@@ -12,3 +12,5 @@ time <- paste(activity$date," ",hour,":",minute, sep = "")
 time <- strptime(time, format = "%Y-%m-%d %H:%M")
 activity$time <- time
 str(activity)
+
+knit2html("PA1_template.rmd")
