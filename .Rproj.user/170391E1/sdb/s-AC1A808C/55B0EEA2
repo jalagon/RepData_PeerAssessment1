@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "hour <- as.integer(activity$interval/100)\nminute <- as.integer(round((activity$interval/100 - hour) * 100)\ntable(minute)\ntable(hour)\nclass(minute)\nclass(hour)\ntime <- paste(hour,\":\",minute, sep = \"\")\nactivity$date\nstrptime(time, format = \"%H:%M\")\n\ntime <- paste(activity$date,\" \",hour,\":\",minute, sep = \"\")\ntime <- strptime(time, format = \"%Y-%m-%d %H:%M\")\nactivity$time <- time\nstr(activity)\n",
+    "created" : 1447549252219.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3006137975",
+    "id" : "55B0EEA2",
+    "lastKnownWriteTime" : 1447563454,
+    "path" : "~/GitHub/RepData_PeerAssessment1/auxiliar.R",
+    "project_path" : "auxiliar.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

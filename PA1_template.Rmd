@@ -11,7 +11,7 @@ output:
 
 First, download the data from internet.
 
-```{r Download and extract data}
+```{r Download and extract data, cache=TRUE}
 URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(url = URL, destfile = "activity.zip")
 unzip("activity.zip")
@@ -22,10 +22,8 @@ Now read data in R, change date variable to date format and check everything loo
 ```{r Read data}
 # Read data. I assume you have downloaded zip data and extracted *activity.csv*  to working directory.
 activity <- read.csv("activity.csv")
-
 # Change date variable to date format
 activity$date<-as.Date.factor(activity$date)
-
 # Explore data frame
 str(activity)
 head(activity)
@@ -34,15 +32,33 @@ tail(activity)
 ```
 
 
-
 ## What is mean total number of steps taken per day?
-```{r Mean total steps per day}
-library(dplyr)
+
+1. Calculate the total number of steps taken per day
+
+```{r Total steps per day}
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+#Calculate total number of steps per day
 StepsPerDay <- summarise(group_by(activity, date), sum(steps))
-MeanStepsPerDay <- mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)
-print(MeanStepsPerDay)
+StepsPerDay
+
 ```
 
+2. Make a histogram of the total number of steps taken each day
+```{r Histogram}
+hist(StepsPerDay$`sum(steps)`,
+     main = "Total number of steps per day",
+     xlab = "Steps per day")
+```
+
+
+3. Calculate and report the mean and median of the total number of steps taken per day
+```{r Mean and median steps per day}
+#Calculate mean and median across days, removing NA
+mean(StepsPerDay$`sum(steps)`, na.rm = TRUE)
+median(StepsPerDay$`sum(steps)`, na.rm = TRUE)
+
+```
 
 
 ## What is the average daily activity pattern?
